@@ -337,6 +337,15 @@ public static class Program {
 			}
 
 			foreach(var section in Sections) {
+				if(section.Commands.Count != section.Entries.Length) {
+					for(int i = 0; i < Math.Min(section.Commands.Count, section.Entries.Length); i++) {
+						var command = section.Commands[i];
+						var entry = section.Entries[i];
+						Console.WriteLine($"{entry.Type,11} {command.SourceLine}");
+						Debug.Assert((command is TextCommand) == (entry.Type == SptEntryType.Text));
+					}
+				}
+
 				Debug.Assert(section.Commands.Count == section.Entries.Length);
 			}
 
@@ -459,7 +468,7 @@ public static class Program {
 			if(line.StartsWith("***"))
 				return LineType.Section;
 
-			if(string.IsNullOrWhiteSpace(line) || line.StartsWith("//"))
+			if(string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith("//"))
 				return LineType.None;
 
 			if(line.Contains('_') || line.Contains("//"))
@@ -518,8 +527,10 @@ public enum SptEntryType {
 	Text = 0x01,        // {text}
 	BgIn = 0x07,        // BG_BGM{id}_FIN
 	BgOut = 0x08,       // BG_BGM{id}_FOUT
+	Se = 0x0A,          // SE_{id}
 	EfB = 0x13,         // EF_B{id}_{file}
 	EfC = 0x14,         // EF_C{id}_{file}
+	EfWait = 0x1D,      // EF_WAIT_{delay}
 	EfFlag = 0x21,      // EF_FLAG_{id}_{value}
 	EfSkip = 0x24,      // EF_SKIP
 	BgCv = 0x29,        // BGCV_{OFF|id}
