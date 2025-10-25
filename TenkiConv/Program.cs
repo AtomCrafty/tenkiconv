@@ -100,7 +100,7 @@ public static class Program {
 			Sections = sections;
 		}
 
-		public static readonly Regex SectionPattern = new(@"^\*\*\*S[SC]_(?<sectionName>\w\d+_\d+)_");
+		public static readonly Regex SectionPattern = new(@"^\*\*\*S[SC]_(?<sectionName>[\w\d_]+)");
 		public static readonly Regex NamePattern = new(@"^(?<name>.*?)\s*\uff08(?<id>[\uff10-\uff19]{4})\uff09"); // （[０-９]{4}）
 
 		public static Script ParseCode(string fileName) {
@@ -148,7 +148,8 @@ public static class Program {
 					case LineType.Section: {
 						var match = SectionPattern.Match(lineText);
 						Debug.Assert(match.Success);
-						currentSection = new ScriptSection(Path.Combine(Path.GetDirectoryName(fileName)!, match.Groups["sectionName"].Value + ".spt"));
+						var scenarioId = Path.GetFileNameWithoutExtension(fileName)[4..];
+						currentSection = new ScriptSection(Path.Combine(Path.GetDirectoryName(fileName)!, scenarioId + "_" + match.Groups["sectionName"].Value + ".spt"));
 						sections.Add(currentSection);
 						commandIndex = 0;
 						return new ScriptLine(LineType.Section, lineText, lineNo);
